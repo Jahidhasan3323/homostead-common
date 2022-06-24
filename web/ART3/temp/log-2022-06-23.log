@@ -1,0 +1,21 @@
+ERROR - 2022-06-23 01:20:40 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 141
+ERROR - 2022-06-23 01:20:43 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 145
+ERROR - 2022-06-23 01:20:44 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 153
+ERROR - 2022-06-23 01:20:45 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 141
+ERROR - 2022-06-23 01:20:46 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 145
+ERROR - 2022-06-23 01:20:46 --> Severity: Notice --> Undefined index: loggedin_id /home/vagrant/code/art/application/modules/search/models/Search_model.php 153
+ERROR - 2022-06-23 01:20:46 --> Query error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'JOIN `Category_Widgets` AS `cw` ON `cw`.`id` = `uw`.`widget_id`
+WHERE `ut`.`u...' at line 11 - Invalid query: SELECT MAX(CASE WHEN ut.wa_key = 'service_url' THEN ut.value ELSE null END) AS service_url, MAX(CASE WHEN ut.wa_key = 'geo' THEN ut.value ELSE null END) AS geo, MAX(CASE WHEN ut.wa_key = 'row' THEN ut.value ELSE null END) AS row, MAX(CASE WHEN ut.wa_key = 'display_order' THEN ut.value ELSE null END) AS display_order, MAX(CASE WHEN ut.wa_key = 'enabled' THEN ut.value ELSE null END) AS enabled, MAX(CASE WHEN ut.wa_key = 'has_expand' THEN ut.value ELSE null END) AS has_expand, MAX(CASE WHEN ut.wa_key = 'program' THEN ut.value ELSE null END) AS program, `uw`.`id` AS `uw_id`, `cw`.`id` AS `widget_id`, `cw`.`type` AS `type`, `cw`.`heading` AS `heading`, `cw`.`default` AS `default`, `cw`.`active` AS `active`
+FROM ((SELECT
+                uw.id AS user_widget_id, `uw`.`user_id` AS `user_id`, `wa`.`key` AS `wa_key`, COALESCE(wua.value, wda.value) AS value
+            FROM User_Widgets AS uw
+            LEFT JOIN Category_Widgets AS cw ON cw.id = uw.widget_id
+            JOIN Widget_Default_Attributes AS wda ON wda.widget_id = cw.id
+            JOIN Widget_Attributes AS wa ON wda.widget_attribute_id = wa.id
+            LEFT JOIN Widget_User_Attributes AS wua ON wua.user_widget_id = uw.id AND wua.widget_attribute_id = wa.id
+            GROUP BY uw.id, wa.id) AS ut)
+LEFT JOIN `User_Widgets` AS `uw` ON `uw`.`id` = `ut`.`user_widget_id` AND `uw`.`user_id` = 
+LEFT JOIN `Category_Widgets` AS `cw` ON `cw`.`id` = `uw`.`widget_id`
+WHERE `ut`.`user_id` IS NULL
+GROUP BY `ut`.`user_widget_id`
+ORDER BY `row`, `display_order`

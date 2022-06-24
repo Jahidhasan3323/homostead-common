@@ -1,0 +1,68 @@
+ERROR - 2022-06-22 01:31:45 --> Query error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'JOIN `Category_Widgets` AS `cw` ON `cw`.`id` = `uw`.`widget_id`
+WHERE `ut`.`u...' at line 11 - Invalid query: SELECT MAX(CASE WHEN ut.wa_key = 'service_url' THEN ut.value ELSE null END) AS service_url, MAX(CASE WHEN ut.wa_key = 'geo' THEN ut.value ELSE null END) AS geo, MAX(CASE WHEN ut.wa_key = 'row' THEN ut.value ELSE null END) AS row, MAX(CASE WHEN ut.wa_key = 'display_order' THEN ut.value ELSE null END) AS display_order, MAX(CASE WHEN ut.wa_key = 'enabled' THEN ut.value ELSE null END) AS enabled, MAX(CASE WHEN ut.wa_key = 'has_expand' THEN ut.value ELSE null END) AS has_expand, MAX(CASE WHEN ut.wa_key = 'program' THEN ut.value ELSE null END) AS program, `uw`.`id` AS `uw_id`, `cw`.`id` AS `widget_id`, `cw`.`type` AS `type`, `cw`.`heading` AS `heading`, `cw`.`default` AS `default`, `cw`.`active` AS `active`
+FROM ((SELECT
+                uw.id AS user_widget_id, `uw`.`user_id` AS `user_id`, `wa`.`key` AS `wa_key`, COALESCE(wua.value, wda.value) AS value
+            FROM User_Widgets AS uw
+            LEFT JOIN Category_Widgets AS cw ON cw.id = uw.widget_id
+            JOIN Widget_Default_Attributes AS wda ON wda.widget_id = cw.id
+            JOIN Widget_Attributes AS wa ON wda.widget_attribute_id = wa.id
+            LEFT JOIN Widget_User_Attributes AS wua ON wua.user_widget_id = uw.id AND wua.widget_attribute_id = wa.id
+            GROUP BY uw.id, wa.id) AS ut)
+LEFT JOIN `User_Widgets` AS `uw` ON `uw`.`id` = `ut`.`user_widget_id` AND `uw`.`user_id` = 
+LEFT JOIN `Category_Widgets` AS `cw` ON `cw`.`id` = `uw`.`widget_id`
+WHERE `ut`.`user_id` IS NULL
+GROUP BY `ut`.`user_widget_id`
+ORDER BY `row`, `display_order`
+ERROR - 2022-06-22 01:59:42 --> Query error: FUNCTION art_dev.fiscalYear does not exist - Invalid query: SELECT s.id, s.number, s.name, s.status as store_status, CONCAT(s.number, " - ", s.name) as number_name, fiscalYear(s.open_date) AS fiscal_open_year, csk.value as kind, csl.value as layout, csloct.value as location_type, IF(s.exterior_facade = 1, "Yes", IF(s.exterior_facade is null, "", "No")) AS exterior_facade, IF(s.exterior_customer_entrance_door = 1, "Yes", IF(s.exterior_customer_entrance_door is null, "", "No")) AS exterior_customer_entrance_door, IF(s.exterior_and_interior_customer_entrance_door = 1, "Yes", IF(s.exterior_and_interior_customer_entrance_door is null, "", "No")) AS exterior_and_interior_customer_entrance_door, css.value as size, csstatus.value as status, csv.value as vintage, IF (csstatus.id = 1, cst2.value, cst.value) AS type, cslb.value as backstage, geo.value as geocode, a.street_address, a.postal_code, a.country as country_name, a.locality as city_name, a.administrative_area_level_1 as state, a.administrative_area_level_2 as county, TRIM(a.lat) + 0 AS lat, TRIM(a.lng) + 0 AS lng, c.iso3 as country_iso, DATE_FORMAT(s.open_date, "%b %e, %Y") as formatted_store_open, s.open_date, cpg.value preservation_geo, cm.value as metro_name, cm.rank as metro_rank, IF (ckwd.keyword_name IS NULL, '', GROUP_CONCAT(ckwd.keyword_name)) AS keywords, l.occupancy, l.scope, cscsg.value as shopping_center_street_grade, mslg.location_risk, IF(s.exterior_facade = 1, "Yes", IF(s.exterior_facade is null, "", "No") ) as exterior_facade, IF(s.exterior_customer_entrance_door = 1, "Yes", IF(s.exterior_customer_entrance_door is null, "", "No") ) as exterior_customer_entrance_door, IF(s.exterior_and_interior_customer_entrance_door = 1, "Yes", IF(s.exterior_and_interior_customer_entrance_door is null, "", "No") ) as exterior_and_interior_customer_entrance_door
+FROM `Store` `s`
+LEFT JOIN `Category_Store_Kind` `csk` ON `csk`.`id` = `s`.`kind`
+LEFT JOIN `Category_Store_Layout` `csl` ON `csl`.`id` = `s`.`layout`
+LEFT JOIN `Category_Store_Location_Type` `csloct` ON `csloct`.`id` = `s`.`location_type`
+LEFT JOIN `Category_Store_Size` `css` ON `css`.`id` = `s`.`size`
+LEFT JOIN `Category_Store_Status` `csstatus` ON `csstatus`.`id` = `s`.`status`
+LEFT JOIN `Category_Store_Vintage` `csv` ON `csv`.`id` = `s`.`vintage`
+LEFT JOIN `Category_Apple_Geo` `geo` ON `geo`.`id` = `s`.`apple_geo`
+LEFT JOIN `Category_Store_Type` `cst` ON `cst`.`id` = `s`.`refreshed_store_type`
+LEFT JOIN `Address` `a` ON `s`.`address` = `a`.`id`
+LEFT JOIN `Country` `c` ON `c`.`id` = `a`.`country_id`
+LEFT JOIN `Category_Metro_Details` `cmd` ON `s`.`metro_id` = `cmd`.`id`
+LEFT JOIN `Category_Metro` `cm` ON `cmd`.`category_metro_id` = `cm`.`id`
+LEFT JOIN `Location` `l` ON `l`.`store_id` = `s`.`id` and `l`.`main_location` = 1 and `l`.`location_deleted` = 0
+LEFT JOIN `Category_Store_Type` `cst2` ON `cst2`.`id` = `l`.`store_type`
+LEFT JOIN `Keywords` `kwd` ON `kwd`.`store_id` = `s`.`id` AND `kwd`.`active` = 1
+LEFT JOIN `Category_Keywords` `ckwd` ON `kwd`.`category_keywords_id` = `ckwd`.`id`
+LEFT JOIN `Category_Preservation_Geo` `cpg` ON `cpg`.`id` = `s`.`preservation_geo`
+LEFT JOIN `Category_Store_Location_Backstage` `cslb` ON `cslb`.`id` = `l`.`backstage` AND `l`.`main_location` = 1
+LEFT JOIN `ma_Store_Location_Grade` `mslg` ON `mslg`.`store_id` = `s`.`id`
+LEFT JOIN `Category_Shopping_Center_Street_Grade` `cscsg` ON `mslg`.`location_grade` = `cscsg`.`id`
+WHERE `number` != 'R900'
+AND `s`.`active` = 1
+GROUP BY `s`.`id`
+ORDER BY `s`.`name`
+ERROR - 2022-06-22 02:00:15 --> Severity: error --> Exception: Too few arguments to function Wiki::download_wiki_article_report(), 0 passed in /home/vagrant/code/art/system/core/CodeIgniter.php on line 532 and exactly 1 expected /home/vagrant/code/art/application/modules/wiki/controllers/Wiki.php 240
+ERROR - 2022-06-22 02:00:27 --> Query error: FUNCTION art_dev.fiscalYear does not exist - Invalid query: SELECT s.id, s.number, s.name, s.status as store_status, CONCAT(s.number, " - ", s.name) as number_name, fiscalYear(s.open_date) AS fiscal_open_year, csk.value as kind, csl.value as layout, csloct.value as location_type, IF(s.exterior_facade = 1, "Yes", IF(s.exterior_facade is null, "", "No")) AS exterior_facade, IF(s.exterior_customer_entrance_door = 1, "Yes", IF(s.exterior_customer_entrance_door is null, "", "No")) AS exterior_customer_entrance_door, IF(s.exterior_and_interior_customer_entrance_door = 1, "Yes", IF(s.exterior_and_interior_customer_entrance_door is null, "", "No")) AS exterior_and_interior_customer_entrance_door, css.value as size, csstatus.value as status, csv.value as vintage, IF (csstatus.id = 1, cst2.value, cst.value) AS type, cslb.value as backstage, geo.value as geocode, a.street_address, a.postal_code, a.country as country_name, a.locality as city_name, a.administrative_area_level_1 as state, a.administrative_area_level_2 as county, TRIM(a.lat) + 0 AS lat, TRIM(a.lng) + 0 AS lng, c.iso3 as country_iso, DATE_FORMAT(s.open_date, "%b %e, %Y") as formatted_store_open, s.open_date, cpg.value preservation_geo, cm.value as metro_name, cm.rank as metro_rank, IF (ckwd.keyword_name IS NULL, '', GROUP_CONCAT(ckwd.keyword_name)) AS keywords, l.occupancy, l.scope, cscsg.value as shopping_center_street_grade, mslg.location_risk, IF(s.exterior_facade = 1, "Yes", IF(s.exterior_facade is null, "", "No") ) as exterior_facade, IF(s.exterior_customer_entrance_door = 1, "Yes", IF(s.exterior_customer_entrance_door is null, "", "No") ) as exterior_customer_entrance_door, IF(s.exterior_and_interior_customer_entrance_door = 1, "Yes", IF(s.exterior_and_interior_customer_entrance_door is null, "", "No") ) as exterior_and_interior_customer_entrance_door
+FROM `Store` `s`
+LEFT JOIN `Category_Store_Kind` `csk` ON `csk`.`id` = `s`.`kind`
+LEFT JOIN `Category_Store_Layout` `csl` ON `csl`.`id` = `s`.`layout`
+LEFT JOIN `Category_Store_Location_Type` `csloct` ON `csloct`.`id` = `s`.`location_type`
+LEFT JOIN `Category_Store_Size` `css` ON `css`.`id` = `s`.`size`
+LEFT JOIN `Category_Store_Status` `csstatus` ON `csstatus`.`id` = `s`.`status`
+LEFT JOIN `Category_Store_Vintage` `csv` ON `csv`.`id` = `s`.`vintage`
+LEFT JOIN `Category_Apple_Geo` `geo` ON `geo`.`id` = `s`.`apple_geo`
+LEFT JOIN `Category_Store_Type` `cst` ON `cst`.`id` = `s`.`refreshed_store_type`
+LEFT JOIN `Address` `a` ON `s`.`address` = `a`.`id`
+LEFT JOIN `Country` `c` ON `c`.`id` = `a`.`country_id`
+LEFT JOIN `Category_Metro_Details` `cmd` ON `s`.`metro_id` = `cmd`.`id`
+LEFT JOIN `Category_Metro` `cm` ON `cmd`.`category_metro_id` = `cm`.`id`
+LEFT JOIN `Location` `l` ON `l`.`store_id` = `s`.`id` and `l`.`main_location` = 1 and `l`.`location_deleted` = 0
+LEFT JOIN `Category_Store_Type` `cst2` ON `cst2`.`id` = `l`.`store_type`
+LEFT JOIN `Keywords` `kwd` ON `kwd`.`store_id` = `s`.`id` AND `kwd`.`active` = 1
+LEFT JOIN `Category_Keywords` `ckwd` ON `kwd`.`category_keywords_id` = `ckwd`.`id`
+LEFT JOIN `Category_Preservation_Geo` `cpg` ON `cpg`.`id` = `s`.`preservation_geo`
+LEFT JOIN `Category_Store_Location_Backstage` `cslb` ON `cslb`.`id` = `l`.`backstage` AND `l`.`main_location` = 1
+LEFT JOIN `ma_Store_Location_Grade` `mslg` ON `mslg`.`store_id` = `s`.`id`
+LEFT JOIN `Category_Shopping_Center_Street_Grade` `cscsg` ON `mslg`.`location_grade` = `cscsg`.`id`
+WHERE `number` != 'R900'
+AND `s`.`active` = 1
+GROUP BY `s`.`id`
+ORDER BY `s`.`name`

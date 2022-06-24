@@ -1,0 +1,2 @@
+ERROR - 2022-06-19 22:23:16 --> Severity: Warning --> mysqli::real_connect(): (HY000/1049): Unknown database 'art-red' /home/vagrant/code/art/system/database/drivers/mysqli/mysqli_driver.php 203
+ERROR - 2022-06-19 22:23:16 --> Unable to connect to the database
